@@ -560,3 +560,910 @@ def test_priority_queue():
 
 if __name__ == '__main__':
     test_priority_queue()
+
+# 7.5 연결 리스트 
+
+# 연결 리스트는 값과 다음 노드에 대한 포인터가 포함된 노드로 이루어진 선형 리스트다. 
+# 마지막 노드는 null 값을 가지고 있다. 
+# 연결 리스트로 스택과 큐를 구현할 수 있다. 
+
+class Node(object):
+    def __init__(self, value = None, pointer = None):
+        self.value = value
+        self.pointer = pointer 
+
+    def getData(self):
+        return self.value
+    
+    def getNext(self):
+        return self.pointer
+
+    def setData(self, newdata):
+        self.value = newdata
+
+    def setNext(self, newpointer):
+        self.pointer = newpointer
+    
+if __name__ == '__main__':
+    L = Node('a', Node('b',Node('c',Node('d'))))
+    assert(L.pointer.pointer.value == 'c')
+
+    print(L.getData())
+    print(L.getNext().getData())
+    L.setData('aa')
+    L.setNext(Node('e'))
+    print(L.getData())
+    print(L.getNext().getData())
+# a
+# b
+# aa
+# e
+
+# 후입선출 연결 리스트 구현
+
+class Node(object):
+    def __init__(self, value = None, pointer = None):
+        self.value = value
+        self.pointer = pointer 
+
+    def getData(self):
+        return self.value
+    
+    def getNext(self):
+        return self.pointer
+
+    def setData(self, newdata):
+        self.value = newdata
+
+    def setNext(self, newpointer):
+        self.pointer = newpointer
+
+class LinkedListLIFO(object):
+    def __init__(self):
+        self.head = None
+        self.length = 0
+
+    # 헤드부터 각 노드 값을 출력한다. 
+    def _printList(self):
+        node = self.head
+        while node:
+            print(node.value, end = " ")
+            node = node.pointer
+        print()
+
+    # 이전 노드(prev)를 기반으로 노드를 삭제한다. 
+    def _delete(self, prev, node):
+        self.length -= 1
+        if not prev:
+            self.head = node.pointer
+        else:
+            prev.pointer = node.pointer
+
+    # 새 노드를 추가한다. 다음 노드로 헤드를 가리키고, 헤드는 새 노드를 가리킨다.     
+    def _add(self, value):
+        self.length += 1
+        self.head = Node(value, self.head)
+
+    # 인덱스로 노드를 찾는다. 
+    def _find(self, index):
+        prev = None
+        node = self.head
+        i = 0
+        while node and i < index:
+            prev = node
+            node = node.pointer
+            i += 1
+        return node, prev, i 
+
+    # 값으로 노드를 찾는다.
+    def _find_by_value(self,value):
+        prev = None
+        node = self.head
+        found = False
+        while node and not found:
+            if node.value == value:
+                found = True
+            else:
+                prev = node
+                node = node.pointer
+        return node, prev, found
+
+    # 인덱스에 해당하는 노드를 찾아서 삭제한다. 
+    def deleteNode(self, index):
+        node, prev, i = self._find(index)
+        if index == i:
+            self._delete(prev,node)
+        else:
+            print(f"인덱스 {index}에 해당하는 노드가 없습니다. ")
+        
+    # 값에 해당하는 노드를 찾아서 삭제한다. 
+    def deleteNodeByValue(self, value):
+        node, prev, found = self._find_by_value(value)
+        if found:
+            self._delete(prev,node)
+        else:
+            print(f"값{value}에 해당하는 노드가 없습니다.")
+
+if __name__ == '__main__':
+    ll = LinkedListLIFO()
+    for i in range(1,5):
+        ll._add(i)
+    print('연결 리스트 출력:')
+    ll._printList()
+    print('인덱스 2인 노드 삭제 후, 연결 리스트 출력:')
+    ll.deleteNode(2)
+    ll._printList()
+    print('값이 3인 노드 삭제 후, 연결 리스트 출력:')
+    ll.deleteNodeByValue(3)
+    ll._printList()
+    print('값이 15인 노드 추가 후, 연결 리스트 출력:')
+    ll._add(15)
+    ll._printList()
+    print('모든 노드 삭제 후, 연결 리스트 출력:')
+    for i in range(ll.length-1,-1,-1):
+        ll.deleteNode(i)
+    ll._printList()
+
+# 연결 리스트 출력:
+# 4 3 2 1 
+# 인덱스 2인 노드 삭제 후, 연결 리스트 출력:
+# 4 3 1 
+# 값이 3인 노드 삭제 후, 연결 리스트 출력:
+# 4 1 
+# 값이 15인 노드 추가 후, 연결 리스트 출력:
+# 15 4 1 
+# 모든 노드 삭제 후, 연결 리스트 출력:
+
+# 선입선출 형식의 연결 리스트 구현
+
+class Node(object):
+    def __init__(self, value = None, pointer = None):
+        self.value = value
+        self.pointer = pointer 
+
+    def getData(self):
+        return self.value
+    
+    def getNext(self):
+        return self.pointer
+
+    def setData(self, newdata):
+        self.value = newdata
+
+    def setNext(self, newpointer):
+        self.pointer = newpointer
+
+class LinkedListFIFO(object):
+    def __init__(self):
+        self.head = None #머리부분
+        self.length = 0
+        self.tail = None #꼬리부분
+
+    # 헤드부터 각 노드의 값을 출력한다.
+    def _printList(self):
+        node = self.head
+        while node:
+            print(node.value, end = " ")
+            node = node.pointer
+        print()
+    
+    # 첫번째 위치에 노드를 추가한다.
+    def _addFirst(self,value):
+        self.length = 1
+        node = Node(value)
+        self.head = node
+        self.tail = node
+    
+    # 첫번째 위치에 노드를 삭제한다. 
+    def _deleteFirst(self):
+        self.length = 0
+        self.head = None
+        self.tail = None
+        print('연결 리스트가 비었습니다.')
+
+    # 새 노드를 추가한다. 테일이 있다면, 테일의 다음 노드는 새 노드를 가리키고, 테일은 새 노드를 가리킨다. 
+    def _add(self,value):
+        self.length += 1
+        node = Node(value)
+        if self.tail:
+            self.tail.pointer = node
+        self.tail = node
+    
+    # 새 노드를 추가한다.
+    def addNode(self, value):
+        if not self.head:
+            self._addFirst(value)
+        else:
+            self._add(value)
+
+    # 인덱스로 노드를 찾는다. 
+    def _find(self, index):
+        prev = None
+        node = self.head
+        i = 0
+        while node and i < index:
+            prev = node
+            node = node.pointer
+            i += 1
+        return node, prev, i 
+
+    # 값으로 노드를 찾는다. 
+    def _find_by_value(self,value):
+        prev = None
+        node = self.head
+        found = False
+        while node and not found:
+            if node.value == value:
+                found = True
+            else:
+                prev = node
+                node = node.pointer
+        return node, prev, found
+    
+    # 인덱스에 해당하는 노드를 삭제한다. 
+    def deleteNode(self, index):
+        if not self.head or not self.head.pointer:
+            self._deleteFirst()
+        else:
+            node, prev, i = self._find(index)
+            if i == index and node:
+                self.length -= 1
+                if i == 0 or not prev:
+                    self.head = node.pointer
+                    self.tail = node.pointer
+                else:
+                    prev.pointer = node.pointer
+            else:
+                print('값 {0}에 해당하는 노드가 없습니다.'.format(index))
+
+    # 값에 해당하는 노드를 삭제한다. 
+    def deleteNodeByValue(self, value):
+        if not self.head or not self.head.pointer:
+            self._deleteFirst()
+        else:
+            node, prev, i = self._find(index)
+            if node and node.value == value:
+                self.length -= 1
+                if i == 0 or not prev:
+                    self.head = node.pointer
+                    self.tail = node.pointer
+                else: 
+                    prev.ponter = node.pointer
+            else:
+                print('값 {0}에 해당하는 노드가 없습니다.'.format(value))
+
+if __name__ == '__main__':
+    ll = LinkedListFIFO()
+    for i in range(1,5):
+        ll.addNode(i)
+    print('연결 리스트 출력:')
+    ll._printList()
+    print('인덱스 2인 노드 삭제 후, 연결 리스트 출력:')
+    ll.deleteNode(2)
+    ll._printList()
+    print('값이 15인 노드 추가 후, 연결 리스트 출력:')
+    ll.addNode(15)
+    ll._printList()
+    print('모든 노드 삭제 후, 연결 리스트 출력:')
+    for i in range(ll.length-1,-1,-1):
+        ll.deleteNode(i)
+    ll._printList()
+
+#연결 리스트 출력:
+#1 2 3 4 
+#인덱스 2인 노드 삭제 후, 연결 리스트 출력:
+#1 2 4 
+#값이 15인 노드 추가 후, 연결 리스트 출력:
+#1 2 4 15 
+#모든 노드 삭제 후, 연결 리스트 출력:
+#연결 리스트가 비었습니다.
+
+# 연결 리스트의 크기는 동적일 수 있다. 따라서 런타임에 저장할 항목의 수를 알 수 없을 때 유용하다. 
+# 연결 리스트의 삽입 시간복잡도는 O(1)이다. 
+# 검색및 삭제의 시간복잡도는 O(n)이다. (순차적으로 항목을 검색하기 때문)
+# 뒤부터 순회하거나 정렬하는 최악의 경우는 O(n^2)이다
+# 어떤 노드의 포인터를 알고 있을 때 그 노드를 삭제하면 시간복잡도는 O(1)이 될 수 있다. 
+# -> 해당 노드의 값에 다음 노드의 값을 할당하고, 해당 노드의 포인터는 다음 다음의 노드를 가리키게 하면 되기 때문이다. 
+
+# 삭제 코드
+if node.pointer is not None:
+    node.value = node.pointer.value
+    node.pointer = node.pointer.pointer
+else:
+    node = None
+
+# 7.6 해시 테이블
+
+# 해시 테이블은 키를 값에 연결하여, 하나의 키가 0 또는 1개의 값과 연관된다. 
+# 각 키는 해시 함수를 계산할 수 있어야한다. 
+# 해시 테이블은 해시 버킷의 배열로 구성됨. 
+# 두개의 키가 동이ㅣㄹ한 버킷에 해시될 때, 해시 충돌이 발생한다. 
+# 이를 처리하기 위해서는 각 버킷에 대해 키-값 쌍의 연결리스트를 저장하는 것이다. 
+# 해시테이블의 조회, 삽입 삭제의 시간 복잡도는 O(1)이다. 최악의 경우 동일한 버킷으로 해시된다면(해시충돌), 각 작업의 시간 복잡도는 O(n)이다.
+
+
+class Node(object):
+    def __init__(self, value = None, pointer = None):
+        self.value = value
+        self.pointer = pointer 
+
+    def getData(self):
+        return self.value
+    
+    def getNext(self):
+        return self.pointer
+
+    def setData(self, newdata):
+        self.value = newdata
+
+    def setNext(self, newpointer):
+        self.pointer = newpointer
+
+class LinkedListFIFO(object):
+    def __init__(self):
+        self.head = None #머리부분
+        self.length = 0
+        self.tail = None #꼬리부분
+
+    # 헤드부터 각 노드의 값을 출력한다.
+    def _printList(self):
+        node = self.head
+        while node:
+            print(node.value, end = " ")
+            node = node.pointer
+        print()
+    
+    # 첫번째 위치에 노드를 추가한다.
+    def _addFirst(self,value):
+        self.length = 1
+        node = Node(value)
+        self.head = node
+        self.tail = node
+    
+    # 첫번째 위치에 노드를 삭제한다. 
+    def _deleteFirst(self):
+        self.length = 0
+        self.head = None
+        self.tail = None
+        print('연결 리스트가 비었습니다.')
+
+    # 새 노드를 추가한다. 테일이 있다면, 테일의 다음 노드는 새 노드를 가리키고, 테일은 새 노드를 가리킨다. 
+    def _add(self,value):
+        self.length += 1
+        node = Node(value)
+        if self.tail:
+            self.tail.pointer = node
+        self.tail = node
+    
+    # 새 노드를 추가한다.
+    def addNode(self, value):
+        if not self.head:
+            self._addFirst(value)
+        else:
+            self._add(value)
+
+    # 인덱스로 노드를 찾는다. 
+    def _find(self, index):
+        prev = None
+        node = self.head
+        i = 0
+        while node and i < index:
+            prev = node
+            node = node.pointer
+            i += 1
+        return node, prev, i 
+
+    # 값으로 노드를 찾는다. 
+    def _find_by_value(self,value):
+        prev = None
+        node = self.head
+        found = False
+        while node and not found:
+            if node.value == value:
+                found = True
+            else:
+                prev = node
+                node = node.pointer
+        return node, prev, found
+    
+    # 인덱스에 해당하는 노드를 삭제한다. 
+    def deleteNode(self, index):
+        if not self.head or not self.head.pointer:
+            self._deleteFirst()
+        else:
+            node, prev, i = self._find(index)
+            if i == index and node:
+                self.length -= 1
+                if i == 0 or not prev:
+                    self.head = node.pointer
+                    self.tail = node.pointer
+                else:
+                    prev.pointer = node.pointer
+            else:
+                print('값 {0}에 해당하는 노드가 없습니다.'.format(index))
+
+    # 값에 해당하는 노드를 삭제한다. 
+    def deleteNodeByValue(self, value):
+        if not self.head or not self.head.pointer:
+            self._deleteFirst()
+        else:
+            node, prev, i = self._find(index)
+            if node and node.value == value:
+                self.length -= 1
+                if i == 0 or not prev:
+                    self.head = node.pointer
+                    self.tail = node.pointer
+                else: 
+                    prev.ponter = node.pointer
+            else:
+                print('값 {0}에 해당하는 노드가 없습니다.'.format(value))
+
+class HashTableLL(object):
+    def __init__(self,size):
+        self.size = size
+        self.slots = []
+        self._createHashTable()
+    
+    def _createHashTable(self):
+        for i in range(self.size):
+            self.slots.append(LinkedListFIFO())
+
+    def _find(self, item):
+        return item % self.size
+    
+    def _add(self, item):
+        index = self._find(item)
+        self.slots[index].addNode(item)
+    
+    def _delete(self, item):
+        index = self._find(item)
+        self.slots[index].deleteNodeByValue(item)
+
+    def _print(self):
+        for i in range(self.size):
+            print('슬롯 {0}:'.format(i))
+            self.slots[i]_printList()
+
+
+def test_hash_table():
+    H1 = HashTableLL(3)
+    for i in range(0,20):
+        H1._add(i)
+    H1._print()
+    print('\n항목 0,1,2를 삭제합니다.')
+    H1._delete(0)
+    H1._delete(1)
+    H1._delete(2)
+    H1.print()
+
+if __name__ == '__main__':
+    test_hash_table()
+
+# 7.7 연습문제
+
+# 7.7.1 스택
+# 문자열 반전
+list1 = []
+list2 = []
+str1 = '버피는 천사다.'
+for i in str1:
+    list1.append(i)
+#for i in list1:
+ #   a = list1.pop()
+  #  list2.append(a)
+#print(list2)
+
+while list1:
+    a = list1.pop()
+    list2.append(a)
+print(list2)
+list2
+print(''.join(list2))
+# .다사천 는피버
+
+# 괄호의 짝 확인하기
+list1 = []
+list2 = []
+str1 = '((()))'
+str2 = '(()'
+count1 = 0
+count2 = 0
+
+
+for i in str1:
+    if i == '(':
+        count1 += 1
+    if i == ')':
+        count2 += 1
+
+print(count1)
+print(count2)
+
+print(count1 == count2) # True
+
+
+count1 = 0
+count2 = 0
+for i in str2:
+    if i == '(':
+        count1 += 1
+    if i == ')':
+        count2 += 1
+print(count1 == count2) # False
+
+# 10진수를 2진수로 변환
+
+list1  = [] 
+decum = 9
+str_pop = ''
+
+while decum > 0:
+    dig = decum % 2
+    decum = decum //2
+    list1.append(dig)
+
+while list1:
+    str_pop += str(list1.pop())
+
+print(str_pop) # 1001
+
+# 스택에서 최솟값 O(1)로 조회하기 
+
+class Stack(object):
+    def __init__(self):
+        self.items = []
+
+    def isEmpty(self):
+        return not bool(self.items)
+
+    def push(self, value):
+        self.items.append(value)
+    
+    def pop(self):
+        value = self.items.pop()
+        if value is not None:
+            return value
+        else: 
+            print('Stack is Empty')
+
+    def size(self):
+        return len(self.items)
+
+    def peek(self):
+        if self.items:
+            return self.items[-1]
+        else:
+            print('Stack is Empty')
+
+    def __repr__(self):
+        return repr(self.items)
+
+class NodeWithMin(object):
+    def __init__(self, value = None, minimum = None):
+        self.value = value
+        self.minimum = minimum
+
+class StackMin(Stack):
+    def __init__(self):
+        self.items = []
+        self.minimum = None
+
+    def push(self, value):
+        if self.isEmpty() or self.minimum > value:
+            self.minimum = value
+        self.items.append(NodeWithMin(value, self.minimum))
+
+    def peek(self):
+        return self.items[-1].value
+    
+    def peekMinimum(self):
+        return self.items[-1].minimum
+
+    def pop(self):
+        item = self.items.pop()
+        if item:
+            if item.value  == self.minimum:
+                self.minimum = self.peekMinimum()
+            return item.value
+        else:
+            print('Stack is empty')
+
+    def __repr__(self):
+        aux = []
+        for i in self.items:
+            aux.append(i.value)
+        return repr(aux)
+
+if __name__ == '__main__':
+    stack = StackMin()
+    print('스택이 비었나요? {0}'.format(stack.isEmpty()))
+    print('스택에 10~1 과 1~4를 추가한다.')
+    for i in range(10,0,-1):
+        stack.push(i)
+    for i in range(1,5):
+        stack.push(i)
+    print(stack)
+    print('스택 크기 : {0}'.format(stack.size()))
+    print('peek : {0}'.format(stack.peek()))
+    print('peekMinimum: {0}'.format(stack.peekMinimum()))
+    print('pop: {0}'.format(stack.pop()))
+    print('peek: {0}'.format(stack.peek()))
+    print('peekMinimum: {0}'.format(stack.peekMinimum()))
+    print('스택이 비었나요? {0}'.format(stack.isEmpty()))
+    print(stack)
+
+# 스택이 비었나요? True
+# 스택에 10~1 과 1~4를 추가한다.
+# [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 1, 2, 3, 4]
+# 스택 크기 : 14
+# peek : 4
+# peekMinimum: 1
+# pop: 4
+# peek: 3
+# peekMinimum: 1
+# 스택이 비었나요? False
+# [10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 1, 2, 3]
+
+# 스택 집합
+# 스택에 용량이 정해져 있다면, 용량이 초과되면 새로운 스택을 만들어야 한다. 
+
+class Stack(object):
+    def __init__(self):
+        self.items = []
+
+    def isEmpty(self):
+        return not bool(self.items)
+
+    def push(self, value):
+        self.items.append(value)
+    
+    def pop(self):
+        value = self.items.pop()
+        if value is not None:
+            return value
+        else: 
+            print('Stack is Empty')
+
+    def size(self):
+        return len(self.items)
+
+    def peek(self):
+        if self.items:
+            return self.items[-1]
+        else:
+            print('Stack is Empty')
+
+    def __repr__(self):
+        return repr(self.items)
+
+class SetOfStacks(Stack):
+    def __init__(self, capacity = 4):
+        self.setofstacks = []
+        self.items = []
+        self.capactiy = capacity
+    
+    def push(self, value):
+        if self.size() >= self.capactiy:
+            self.setofstacks.append(self.items)
+            self.items = []
+        self.items.append(value)
+
+    def pop(self):
+        value = self.items.pop()
+        if self.isEmpty() and self.setofstacks:
+            self.items = self.setofstacks.pop()
+        return value
+
+    def sizeStack(self):
+        return len(self.setofstacks) * self.capactiy + self.size()
+
+    def __repr__(self):
+        aux = []
+        for s in self.setofstacks:
+            aux.extend(s)
+        aux.extend(self.items)
+        return repr(aux)
+
+if __name__ =='__main__':
+    capacity = 5
+    stack = SetOfStacks(capacity)
+    print('스택이 비었나요? {0}'.format(stack.isEmpty()))
+    print('스택에 0~9를 추가한다.')
+    for i in range(10):
+        stack.push(i)
+    print(stack)
+    print('스택 크기 : {0}'.format(stack.sizeStack()))
+    print('peek : {0}'.format(stack.peek()))
+    print('pop: {0}'.format(stack.pop()))
+    print('peek: {0}'.format(stack.peek()))
+    print('스택이 비었나요? {0}'.format(stack.isEmpty()))
+    print(stack)
+
+# 스택이 비었나요? True
+# 스택에 0~9를 추가한다.
+# [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+# 스택 크기 : 10
+# peek : 9
+# pop: 9
+# peek: 8
+# 스택이 비었나요? False
+# [0, 1, 2, 3, 4, 5, 6, 7, 8]
+
+# 7.7.2 큐
+
+# 데크와 회문
+import string
+import collections
+
+strip = string.whitespace + string.punctuation + "\"'"
+
+def palindrome_checker_with_deque(str1):
+    d2 = collections.deque()
+
+    for s in str1.lower():
+        if s not in strip:
+            d2.append(s)
+
+    eq2 = True
+    while len(d2) > 1 and eq2:
+        if d2.pop() != d2.popleft():
+            eq2 = False
+    return eq2
+
+if __name__ == '__main__':
+    str1 = 'Madam Im Adam'
+    str2 = 'Buffy is a Slayer'
+    print(palindrome_checker_with_deque(str1)) # True
+    print(palindrome_checker_with_deque(str2)) # False
+
+# 큐와 동물 보호소 
+
+# 개와 고양이를 입양(enqueue) 했다가 다시 출양(dequeue)할 수 있는 동물 보호소를 큐로 구현. 
+
+class Node(object):
+    def __init__(self,animalName = None, animalKind = None, pointer = None):
+        self.animalName = animalName
+        self.animalKind = animalKind
+        self.pointer = pointer
+        self.timestamp = 0
+
+class AnimalShelter(object):
+    def __init__(self):
+        self.headCat = None
+        self.headDog = None
+        self.tailCat = None
+        self.tailDog = None
+        self.animalNumber = 0
+
+    def enqueue(self, animalName, animalKind):
+        self.animalNumber += 1
+        newAnimal = Node(animalName, animalKind)
+        newAnimal.timestamp = self.animalNumber
+
+        if animalKind == 'cat':
+            if not self.headCat:
+                self.headCat = newAnimal
+            if self.tailCat:
+                self.tailCat.pointer = newAnimal
+            self.tailCat = newAnimal
+
+        elif animalKind == 'dog':
+            if not self.headDog:
+                self.headDog = newAnimal
+            if self.tailDog:
+                self.tailDog.pointer = newAnimal
+            self.tailDog = newAnimal
+        
+    def dequeueDog(self):
+        if self.headDog:
+            newAnimal = self.headDog
+            self.headDog = newAnimal.pointer
+            return str(newAnimal.animalName)
+        else: 
+            print('개가 없습니다.')
+    
+    def dequeueCat(self):
+        if self.headCat:
+            newAnimal = self.headCat
+            self.headCat = newAnimal.pointer
+            return str(newAnimal.animalName)
+        else: 
+            print('고양이가 없습니다.')
+    
+    def dequeueAny(self):
+        if self.headCat and not self.headDog:
+            return self.dequeueCat()
+        elif self.headDog and not self.headCat:
+            return self.dequeueDog()
+        elif self.headDog and self.headCat:
+            if self.headDog.timestamp < self.headCat.timestamp:
+                return self.dequeueDog()
+            else:
+                return self.dequeueCat()
+        else:
+            print('동물이 없습니다.')
+
+    def _print(self):
+        print('고양이:')
+        cats = self.headCat
+        while cats:
+            print('\t{0}'.format(cats.animalName))
+            cats = cats.pointer
+        print('개:')
+        dogs = self.headDog
+        while dogs:
+            print('\t{0}'.format(dogs.animalName))
+            dogs = dogs.pointer
+
+    if __name__ == '__main__':
+        qs = AnimalShelter()
+        qs.enqueue('밥','cat')
+        qs.enqueue('마마','cat')
+        qs.enqueue('요다','dog')
+        qs.enqueue('울프','dog')
+        qs._print()
+
+        print('하나의 개와 하나의 고양이 deque 실행')
+        qs.dequeueDog()
+        qs.dequeueCat()
+        qs._print()
+
+# 7.7.3 우선순위 큐와 힙
+
+import heapq
+
+def find_N_largest_items_seq(seq,N):
+    return heapq.nlargest(N,seq)
+
+def find_N_smallest_items_seq(seq,N):
+    return heapq.nsmallest(N,seq)
+
+def find_smallest_items_seq_heap(seq):
+    heapq.heapify(seq)
+    return heapq.heappop(seq)
+
+def find_smallest_items_seq(seq):
+    return min(seq)
+
+def find_N_smallest_items_seq_sorted(seq,N):
+    return sorted(seq)[:N]
+
+def find_N_largest_items_seq_sorted(seq,N):
+    return sorted(seq)[len(seq)-N:]
+
+def test_find_N_largest_smallest_items_seq():
+    seq = [1,3,2,8,6,10,9]
+    N = 3
+    assert(find_N_largest_items_seq(seq,N) == [10,9,8])
+    assert(find_N_largest_items_seq_sorted(seq,N) == [8,9,10])
+    assert(find_N_smallest_items_seq(seq,N) == [1,2,3])
+    assert(find_N_smallest _items_seq_sorted(seq,N) == [1,2,3])
+    assert(find_smallest_items_seq(seq) == 1)
+    assert(find_smallest_items_seq_heap(seq) == 1)
+
+    print('테스트 통과')
+
+if __name__ == '__main__':
+    test_find_N_largest_smallest_items_seq()
+
+import heapq
+
+def merge_sorted_seqs(seq1, seq2):
+    result = []
+    for c in heapq.merge(seq1,seq2):
+        result.append(c)
+    return result
+
+def test_merge_sorted():
+    seq1 = [1,2,3,8,9,10]
+    seq2 = [2,3,4,5,6,7,9]
+    seq3 = seq1 + seq2
+    assert(merge_sorted_seqs(seq1,seq2) == sorted(seq3))
+
+    print(merge_sorted_seqs(seq1,seq2)) # [1, 2, 2, 3, 3, 4, 5, 6, 7, 8, 9, 9, 10]
+    print('테스트통과')
+
+if __name__ == '__main__':
+    test_merge_sorted()
+
+
