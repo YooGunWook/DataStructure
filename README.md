@@ -1,6 +1,6 @@
 # 파이썬 자료구조와 알고리즘 공부
 
-![ex_screenshot](./datastructure.jpeg)
+![ex_screenshot](./datastructure.jpeg)<br>
 파이썬 자료구조와 알고리즘: 기초 튼튼, 핵심 쏙쏙, 실력 쑥쑥으로 자료구조와 알고리즘에 대해 공부한 내용을 정리한 repository입니다. 
 
 ---------------------------------------
